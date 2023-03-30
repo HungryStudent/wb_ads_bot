@@ -1,5 +1,5 @@
 from aiogram.dispatcher import FSMContext
-from aiogram.types import Message, ChatMember
+from aiogram.types import Message, ChatMember, CallbackQuery
 
 import keyboards.user as user_kb
 from config import channel_id
@@ -36,10 +36,28 @@ async def start_command(message: Message, state: FSMContext):
 """, reply_markup=user_kb.menu)
 
 
+@dp.callback_query_handler(text="check_sub")
+async def check_sub(call: CallbackQuery):
+    status: ChatMember = await call.bot.get_chat_member(channel_id, call.from_user.id)
+    if status.status == "left":
+        await call.answer("Необходимо подписаться на канал")
+        return
+
+    await call.message.answer("""<b>Узнайте актуальные рекламные ставки ваших конкурентов на WB</b>
+
+    1️⃣ WB часто предлагает рекламу по высоким ставкам, но на самом деле, ставки для занятия этих мест гораздо ниже
+
+    2️⃣ Вы узнаете реальные ставки, которые на самом деле ниже на 50, 70, а иногда и 90%, чем те, что предлагает WB
+
+    3️⃣ Оптимизируйте расходы за счет оплаты по актуальным ставкам.
+
+    Ставки можно проверить в поиске WB или в карточке товара, нажмите соответствующую кнопку.
+
+    ⚙ В настройках вы можете задать регион и пол аккаунта, с которого будет производится проверка. По умолчанию установлено: МСК, пол: Не указан
+    """, reply_markup=user_kb.menu)
+    await call.message.delete()
+
 @dp.message_handler(state="*", text="Отмена")
 async def cancel(message: Message, state: FSMContext):
     await state.finish()
     await message.answer("Ввод отменен", reply_markup=user_kb.menu)
-
-
-
