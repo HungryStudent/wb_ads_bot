@@ -21,7 +21,10 @@ def start():
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS cities(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, code TEXT)")
         cursor.execute("CREATE TABLE IF NOT EXISTS categories(id INTEGER PRIMARY KEY, name TEXT)")
+        cursor.execute(
+            "CREATE TABLE IF NOT EXISTS catalog(serial_id INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER, name TEXT, parent_id INTEGER, url TEXT)")
         connection.commit()
+
 
 def get_users():
     with closing(sqlite3.connect(database)) as connection:
@@ -29,6 +32,7 @@ def get_users():
         cursor: Cursor = connection.cursor()
         cursor.execute("SELECT user_id FROM users")
         return cursor.fetchall()
+
 
 def get_user(user_id):
     with closing(sqlite3.connect(database)) as connection:
@@ -52,7 +56,8 @@ def add_user(user_id, username, first_name):
     with closing(sqlite3.connect(database)) as connection:
         connection.row_factory = dict_factory
         cursor: Cursor = connection.cursor()
-        cursor.execute("INSERT INTO users VALUES (?, ?, ?, 1, 0, ?)", (user_id, username, first_name, int(datetime.now().timestamp())))
+        cursor.execute("INSERT INTO users VALUES (?, ?, ?, 1, 0, ?)",
+                       (user_id, username, first_name, int(datetime.now().timestamp())))
         connection.commit()
 
 
@@ -77,6 +82,30 @@ def get_category(category_id):
         connection.row_factory = dict_factory
         cursor: Cursor = connection.cursor()
         cursor.execute("SELECT id, name FROM categories WHERE id = ?", (category_id,))
+        return cursor.fetchone()
+
+
+def get_catalog():
+    with closing(sqlite3.connect(database)) as connection:
+        connection.row_factory = dict_factory
+        cursor: Cursor = connection.cursor()
+        cursor.execute("SELECT id, name FROM catalog WHERE parent_id = 0 ORDER BY serial_id")
+        return cursor.fetchall()
+
+
+def get_catalog_childs(catalog_id):
+    with closing(sqlite3.connect(database)) as connection:
+        connection.row_factory = dict_factory
+        cursor: Cursor = connection.cursor()
+        cursor.execute("SELECT id, name FROM catalog WHERE parent_id = ? ORDER BY serial_id", (catalog_id,))
+        return cursor.fetchall()
+
+
+def get_catalog_by_id(catalog_id):
+    with closing(sqlite3.connect(database)) as connection:
+        connection.row_factory = dict_factory
+        cursor: Cursor = connection.cursor()
+        cursor.execute("SELECT id, name, url FROM catalog WHERE id = ?", (catalog_id,))
         return cursor.fetchone()
 
 

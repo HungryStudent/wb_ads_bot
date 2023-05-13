@@ -1,3 +1,5 @@
 venv/
 .idea
 settings.ini
+utils/load_categories.py
+utils/database.db

@@ -7,3 +7,7 @@ class Search(StatesGroup):
 
 class Card(StatesGroup):
     article = State()
+
+
+class Catalog(StatesGroup):
+    catalog_data = State()
