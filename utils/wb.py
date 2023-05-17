@@ -5,6 +5,12 @@ import requests
 
 from utils import db
 
+numbers_emoji = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"]
+
+
+def get_emoji_text(index):
+    return "".join([numbers_emoji[int(i)] for i in str(index)])
+
 
 def get_search(query, curr_page, city):
     parse_query = parse.quote(query)
@@ -26,11 +32,13 @@ def get_search(query, curr_page, city):
         msg_text += f"- Страница {page['page']}, Позиции: {', '.join(map(str, page['positions']))}\n"
 
     msg_text += "\n<b>Рекламодатели:</b>\n\n"
-    numbers_emoji = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣"]
+
     for index, product in enumerate(data["adverts"][curr_page * 7 - 7:curr_page * 7]):
         req = requests.get(f"https://card.wb.ru/cards/detail?nm={product['id']}")
         brand = req.json()["data"]["products"][0]["brand"]
-        msg_text += f"{numbers_emoji[index]} <b>CPM {product['cpm']} руб</b>, Артикул: <u><a href='https://www.wildberries.ru/catalog/{product['id']}/detail.aspx'>{product['id']}</a></u>, Бренд: {brand}\n\n"
+        page_index = curr_page * 7 - (7 - index) + 1
+        emoji = get_emoji_text(page_index)
+        msg_text += f"{emoji} <b>CPM {product['cpm']} руб</b>, Артикул: <u><a href='https://www.wildberries.ru/catalog/{product['id']}/detail.aspx'>{product['id']}</a></u>, Бренд: {brand}\n\n"
 
     msg_text += "<i>🔥 Хотите продвинуть товар без трат на рекламу?</i>\n👉 @automate_mp"
     return_data = {"msg_text": msg_text, "products_count": len(data["adverts"])}
@@ -44,12 +52,13 @@ def get_card(article_id, curr_page, city):
     msg_text = f"<b>Актуальные ставки рекламодателей по артикулу <u><a href='https://www.wildberries.ru/catalog/{article_id}/detail.aspx'>{article_id}</a></u>:</b>\n\n"
 
     msg_text += "<b>Рекламодатели:</b>\n\n"
-    numbers_emoji = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣"]
 
     for index, product in enumerate(data[curr_page * 7 - 7:curr_page * 7]):
         req = requests.get(f"https://card.wb.ru/cards/detail?nm={product['nmId']}")
         brand = req.json()["data"]["products"][0]["brand"]
-        msg_text += f"{numbers_emoji[index]} <b>CPM {product['cpm']} руб</b>, Артикул: <u><a href='https://www.wildberries.ru/catalog/{product['nmId']}/detail.aspx'>{product['nmId']}</a></u>, Бренд: {brand}\n\n"
+        page_index = curr_page * 7 - (7 - index) + 1
+        emoji = get_emoji_text(page_index)
+        msg_text += f"{emoji} <b>CPM {product['cpm']} руб</b>, Артикул: <u><a href='https://www.wildberries.ru/catalog/{product['nmId']}/detail.aspx'>{product['nmId']}</a></u>, Бренд: {brand}\n\n"
 
     msg_text += "<i>🔥 Хотите продвинуть товар без трат на рекламу?</i>\n👉 @automate_mp"
     return_data = {"msg_text": msg_text, "products_count": len(data)}
@@ -65,11 +74,12 @@ def get_catalog(catalog_id, curr_page, city):
     catalog = db.get_catalog_by_id(catalog_id)
     msg_text = f"<b>Актуальные ставки в категории <u><a href='https://www.wildberries.ru/{catalog['url']}'>{catalog['name']}</a></u>:</b>\n\n<b>РЕКЛАМОДАТЕЛИ:</b>\n\n"
 
-    numbers_emoji = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣"]
     for index, product in enumerate(data["adverts"][curr_page * 7 - 7:curr_page * 7]):
         req = requests.get(f"https://card.wb.ru/cards/detail?nm={product['id']}")
         brand = req.json()["data"]["products"][0]["brand"]
-        msg_text += f"{numbers_emoji[index]} <b>CPM {product['cpm']} руб</b>, Артикул: <u><a href='https://www.wildberries.ru/catalog/{product['id']}/detail.aspx'>{product['id']}</a></u>, Бренд: {brand}\n\n"
+        page_index = curr_page * 7 - (7 - index) + 1
+        emoji = get_emoji_text(page_index)
+        msg_text += f"{emoji} <b>CPM {product['cpm']} руб</b>, Артикул: <u><a href='https://www.wildberries.ru/catalog/{product['id']}/detail.aspx'>{product['id']}</a></u>, Бренд: {brand}\n\n"
 
     msg_text += "<i>🔥 Хотите продвинуть товар без трат на рекламу?</i>\n👉 @automate_mp"
     return_data = {"msg_text": msg_text, "products_count": len(data["adverts"])}
